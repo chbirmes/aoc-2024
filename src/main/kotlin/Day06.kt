@@ -11,11 +11,11 @@ private tailrec fun walk(
     guardStates: MutableSet<Guard> = mutableSetOf(guard)
 ): WalkResult {
     val positionAhead = guard.position + guard.direction
-    return if (!grid.contains(positionAhead))
+    return if (positionAhead !in grid)
         WalkResult(guardStates, false)
     else {
         val newGuard =
-            if (obstacles.contains(positionAhead))
+            if (positionAhead in obstacles)
                 guard.copy(direction = guard.direction.turnRight())
             else
                 guard.copy(position = positionAhead)
