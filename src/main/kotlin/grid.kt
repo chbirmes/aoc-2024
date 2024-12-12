@@ -4,6 +4,7 @@ object D2 {
         operator fun plus(other: Position) = Position(x + other.x, y + other.y)
         operator fun times(scalar: Int) = Position(x * scalar, y * scalar)
         operator fun minus(other: Position) = plus(other * -1)
+        operator fun unaryMinus(): Position = Position(-x, -y)
 
         fun turnRight() = Position(-y, x)
     }
