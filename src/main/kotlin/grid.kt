@@ -54,4 +54,6 @@ object D2 {
             .filter { it in grid }
     }
 
+    fun Position.nonDiagonalNeighbors() = nonDiagonalDirections.map { this + it }
+
 }
