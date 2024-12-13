@@ -53,8 +53,9 @@ object D2 {
 
     fun directions(includeDiagonal: Boolean = false) = if (includeDiagonal) allDirections else nonDiagonalDirections
 
-    fun Position.neighbors(includeDiagonal: Boolean=false) = directions(includeDiagonal).map { this + it }
+    fun Position.neighbors(includeDiagonal: Boolean = false) = directions(includeDiagonal).map { this + it }
 
-    fun Position.neighborsIn(grid: Grid, includeDiagonal: Boolean=false) = neighbors(includeDiagonal).filter { it in grid }
+    fun Position.neighborsIn(grid: Grid, includeDiagonal: Boolean = false) =
+        neighbors(includeDiagonal).filter { it in grid }
 
 }

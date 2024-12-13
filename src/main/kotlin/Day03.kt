@@ -1,6 +1,3 @@
-import kotlin.math.absoluteValue
-import kotlin.math.sign
-
 private val mulRegex = Regex("mul\\((\\d{1,3}),(\\d{1,3})\\)")
 
 private fun part1(line: String) =

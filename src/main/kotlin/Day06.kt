@@ -38,8 +38,7 @@ private fun part2(lines: List<String>) =
         val guard = Guard(grid.find('^')!!, D2.up)
         val obstacles = grid.filter('#').toSet()
         val candidates = walk(guard, grid, obstacles).visitedPositions() - guard.position
-        candidates.count { walk(guard, grid, obstacles + it).loop
-        }
+        candidates.count { walk(guard, grid, obstacles + it).loop }
     }
 
 fun main() {

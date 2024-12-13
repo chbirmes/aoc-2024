@@ -1,7 +1,7 @@
 import D2.neighbors
 
 private data class GardenRegion(val plots: Set<D2.Position>, val perimeter: Set<Pair<D2.Position, D2.Position>>) {
-    operator fun plus(other:GardenRegion) = GardenRegion(plots + other.plots, perimeter + other.perimeter)
+    operator fun plus(other: GardenRegion) = GardenRegion(plots + other.plots, perimeter + other.perimeter)
 }
 
 private fun createRegion(
@@ -43,7 +43,7 @@ private fun part1(lines: List<String>): Int {
     return regions.sumOf { it.plots.size * it.perimeter.size }
 }
 
-private operator fun Pair<D2.Position, D2.Position>.plus(other:D2.Position) = (first + other) to (second + other)
+private operator fun Pair<D2.Position, D2.Position>.plus(other: D2.Position) = (first + other) to (second + other)
 
 private fun countSides(perimeter: Set<Pair<D2.Position, D2.Position>>): Int {
     val free = perimeter.toMutableSet()
