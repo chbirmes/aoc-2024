@@ -1,32 +1,32 @@
-import D2.nonDiagonalNeighborsIn
+import D2.neighborsIn
 
 private fun score(current: D2.Position, grid: D2.Grid): Set<D2.Position> {
-    val currentLevel = grid.charAt(current).digitToInt()
+    val currentLevel = grid[current].digitToInt()
     if (currentLevel == 9) return setOf(current)
-    val nextChar = (currentLevel+1).toString().first()
-    val nextPos = current.nonDiagonalNeighborsIn(grid).filter { grid.charAt(it) == nextChar }
+    val nextChar = (currentLevel + 1).toString().first()
+    val nextPos = current.neighborsIn(grid).filter { grid[it] == nextChar }
     if (nextPos.isEmpty()) return emptySet()
     return nextPos.flatMap { score(it, grid) }.toSet()
 }
 
-private fun part1(lines: List<String>) :Int {
+private fun part1(lines: List<String>): Int {
     val grid = D2.Grid(lines)
-    val trailHeads = grid.positions().filter { grid.charAt(it) == '0' }
+    val trailHeads = grid.filter('0')
     return trailHeads.sumOf { score(it, grid).size }
 }
 
 private fun rating(current: D2.Position, grid: D2.Grid): Int {
-    val currentLevel = grid.charAt(current).digitToInt()
+    val currentLevel = grid[current].digitToInt()
     if (currentLevel == 9) return 1
-    val nextChar = (currentLevel+1).toString().first()
-    val nextPos = current.nonDiagonalNeighborsIn(grid).filter { grid.charAt(it) == nextChar }
+    val nextChar = (currentLevel + 1).toString().first()
+    val nextPos = current.neighborsIn(grid).filter { grid[it] == nextChar }
     if (nextPos.isEmpty()) return 0
     return nextPos.sumOf { rating(it, grid) }
 }
 
-private fun part2(lines: List<String>) :Int {
+private fun part2(lines: List<String>): Int {
     val grid = D2.Grid(lines)
-    val trailHeads = grid.positions().filter { grid.charAt(it) == '0' }
+    val trailHeads = grid.filter('0')
     return trailHeads.sumOf { rating(it, grid) }
 }
 

@@ -1,6 +1,7 @@
-private fun antennaGroups(grid: D2.Grid) = grid.positions()
-    .filterNot { grid.charAt(it) == '.' }
-    .groupBy { grid.charAt(it) }.values
+private fun antennaGroups(grid: D2.Grid) =
+    grid.positions()
+        .filterNot { grid[it] == '.' }
+        .groupBy { grid[it] }.values
 
 private fun <T> List<T>.pairs() =
     (0..<lastIndex).flatMap { i ->

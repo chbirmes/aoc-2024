@@ -1,4 +1,4 @@
-import D2.nonDiagonalNeighbors
+import D2.neighbors
 
 private data class GardenRegion(val plots: Set<D2.Position>, val perimeter: Set<Pair<D2.Position, D2.Position>>) {
     operator fun plus(other:GardenRegion) = GardenRegion(plots + other.plots, perimeter + other.perimeter)
@@ -11,9 +11,10 @@ private fun createRegion(
     plots: MutableSet<D2.Position> = mutableSetOf(start),
     perimeter: MutableSet<Pair<D2.Position, D2.Position>> = mutableSetOf()
 ): GardenRegion {
-    val neighbors = start.nonDiagonalNeighbors()
-    val newPlots = neighbors.filter { it in grid && grid.charAt(it) == grid.charAt(start) && it !in plots }.toSet()
-    val newPerimeters = neighbors.filter { it !in grid || grid.charAt(it) != grid.charAt(start) }.map { start to it }
+    val neighbors = start.neighbors()
+    val currentChar = grid[start]
+    val newPlots = neighbors.filter { it in grid && grid[it] == currentChar && it !in plots }.toSet()
+    val newPerimeters = neighbors.filter { it !in grid || grid[it] != currentChar }.map { start to it }
     perimeter.addAll(newPerimeters)
     if (newPlots.isEmpty()) {
         return GardenRegion(plots, perimeter)
@@ -25,7 +26,7 @@ private fun createRegion(
     }
 }
 
-private fun part1(lines: List<String>): Int {
+private fun createRegions(lines: List<String>): MutableList<GardenRegion> {
     val grid = D2.Grid(lines)
     val freePositions = grid.positions().toMutableSet()
     val regions = mutableListOf<GardenRegion>()
@@ -34,6 +35,11 @@ private fun part1(lines: List<String>): Int {
         freePositions.remove(start)
         regions.add(createRegion(start, grid, freePositions))
     }
+    return regions
+}
+
+private fun part1(lines: List<String>): Int {
+    val regions = createRegions(lines)
     return regions.sumOf { it.plots.size * it.perimeter.size }
 }
 
@@ -67,14 +73,7 @@ private fun countSides(perimeter: Set<Pair<D2.Position, D2.Position>>): Int {
 }
 
 private fun part2(lines: List<String>): Int {
-    val grid = D2.Grid(lines)
-    val freePositions = grid.positions().toMutableSet()
-    val regions = mutableListOf<GardenRegion>()
-    while (freePositions.isNotEmpty()) {
-        val start = freePositions.first()
-        freePositions.remove(start)
-        regions.add(createRegion(start, grid, freePositions))
-    }
+    val regions = createRegions(lines)
     return regions.sumOf { it.plots.size * countSides(it.perimeter) }
 }
 

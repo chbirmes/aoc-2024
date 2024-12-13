@@ -15,7 +15,7 @@ object D2 {
         val height: Int get() = lines.size
         val maxY: Int get() = height - 1
 
-        fun charAt(position: Position) = lines[position.y][position.x]
+        operator fun get(position: Position) = lines[position.y][position.x]
 
         operator fun contains(position: Position) =
             position.x in lines[0].indices && position.y in lines.indices
@@ -25,6 +25,10 @@ object D2 {
                 lines.indices.map { y -> Position(x, y) }
             }
 
+        fun find(char: Char) = positions().find { get(it) == char }
+
+        fun filter(char: Char) = positions().filter { get(it) == char }
+
     }
 
     val left = Position(-1, 0)
@@ -32,28 +36,25 @@ object D2 {
     val down = Position(0, 1)
     val up = Position(0, -1)
 
-    val nonDiagonalDirections = listOf(up, right, down, left)
+    private val nonDiagonalDirections = listOf(up, right, down, left)
 
-    val directions = nonDiagonalDirections +
-            listOf(
-                Position(-1, -1),
-                Position(-1, 1),
-                Position(1, -1),
-                Position(1, 1)
-            )
+    val upLeft = Position(-1, -1)
+    val downLeft = Position(-1, 1)
+    val downRight = Position(1, -1)
+    val upRight = Position(1, 1)
 
-    fun Position.neighborsIn(grid: Grid): List<Position> {
-        return directions
-            .map { this + it }
-            .filter { it in grid }
-    }
+    private val diagonalDirections = listOf(
+        upLeft,
+        downLeft,
+        downRight,
+        upRight
+    )
+    private val allDirections = nonDiagonalDirections + diagonalDirections
 
-    fun Position.nonDiagonalNeighborsIn(grid: Grid): List<Position> {
-        return nonDiagonalDirections
-            .map { this + it }
-            .filter { it in grid }
-    }
+    fun directions(includeDiagonal: Boolean = false) = if (includeDiagonal) allDirections else nonDiagonalDirections
 
-    fun Position.nonDiagonalNeighbors() = nonDiagonalDirections.map { this + it }
+    fun Position.neighbors(includeDiagonal: Boolean=false) = directions(includeDiagonal).map { this + it }
+
+    fun Position.neighborsIn(grid: Grid, includeDiagonal: Boolean=false) = neighbors(includeDiagonal).filter { it in grid }
 
 }

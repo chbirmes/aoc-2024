@@ -28,24 +28,17 @@ private tailrec fun walk(
 
 private fun part1(lines: List<String>) =
     D2.Grid(lines).let { grid ->
-        val guard = Guard(
-            grid.positions().find { grid.charAt(it) == '^' }!!,
-            D2.Position(0, -1)
-        )
-        val obstacles = grid.positions().filter { grid.charAt(it) == '#' }.toSet()
+        val guard = Guard(grid.find('^')!!, D2.up)
+        val obstacles = grid.filter('#').toSet()
         walk(guard, grid, obstacles).visitedPositions().size
     }
 
 private fun part2(lines: List<String>) =
     D2.Grid(lines).let { grid ->
-        val guard = Guard(
-            grid.positions().find { grid.charAt(it) == '^' }!!,
-            D2.Position(0, -1)
-        )
-        val obstacles = grid.positions().filter { grid.charAt(it) == '#' }.toSet()
+        val guard = Guard(grid.find('^')!!, D2.up)
+        val obstacles = grid.filter('#').toSet()
         val candidates = walk(guard, grid, obstacles).visitedPositions() - guard.position
-        candidates.count { candidate ->
-            walk(guard, grid, obstacles + candidate).loop
+        candidates.count { walk(guard, grid, obstacles + it).loop
         }
     }
 
