@@ -1,11 +1,10 @@
-import java.awt.Canvas
-import java.awt.Color
-import java.awt.Dimension
-import java.awt.Graphics
-import java.awt.image.BufferedImage
-import javax.swing.JFrame
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.WindowState
+import androidx.compose.ui.window.application
 
-private fun parseRobots(lines: List<String>) =
+fun parseRobots(lines: List<String>) =
     lines.map { line ->
         val position = line.substringAfter("p=")
             .substringBefore(" ")
@@ -19,8 +18,11 @@ private fun parseRobots(lines: List<String>) =
         position to velocity
     }
 
-private fun Pair<D2.Position, D2.Position>.pacmanMove(width: Int, height: Int) =
+fun Pair<D2.Position, D2.Position>.pacmanMove(width: Int, height: Int) =
     (first + second).let { D2.Position(it.x.mod(width), it.y.mod(height)) } to second
+
+fun Pair<D2.Position, D2.Position>.pacmanMoveBackwards(width: Int, height: Int) =
+    (first - second).let { D2.Position(it.x.mod(width), it.y.mod(height)) } to second
 
 private fun part1(lines: List<String>, width: Int, height: Int): Int {
     val initialRobots = parseRobots(lines)
@@ -33,31 +35,6 @@ private fun part1(lines: List<String>, width: Int, height: Int): Int {
         .values.map { it.size }
         .fold(1, Int::times)
 }
-
-private fun part2(lines: List<String>) {
-    val initialRobots = parseRobots(lines)
-
-    val finalRobots = (1..6620).fold(initialRobots) { robots, _ ->
-        robots.map { it.pacmanMove(101, 103) }
-    }
-
-    val img = BufferedImage(101, 103, BufferedImage.TYPE_BYTE_BINARY).apply {
-        finalRobots.forEach { (position, _) -> setRGB(position.x, position.y, Color.WHITE.rgb) }
-    }
-
-    val canvas = object : Canvas() {
-        override fun paint(g: Graphics?) {
-            g?.drawImage(img, 0, 0, null)
-        }
-    }
-
-    JFrame("AOC 2014 - Day 14").apply {
-        size = Dimension(150, 150)
-        add(canvas)
-        isVisible = true
-    }
-}
-
 
 fun quadrant(position: D2.Position, halfWidth: Int, halfHeight: Int) =
     if (position.x < halfWidth && position.y < halfHeight) 0
@@ -85,5 +62,13 @@ fun main() {
 
     val realInput = inputOfDay(14)
     println(part1(realInput, 101, 103))
-    part2(realInput)
+    application {
+        Window(
+            onCloseRequest = ::exitApplication,
+            state = WindowState(size = DpSize(1600.dp, 1200.dp)),
+            title = "Advent of Code 2024 - Day 14 - Restroom Robots"
+        ) {
+            Day14App()
+        }
+    }
 }
