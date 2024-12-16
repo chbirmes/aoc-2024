@@ -6,6 +6,7 @@ object D2 {
         operator fun minus(other: Position) = plus(other * -1)
         operator fun unaryMinus(): Position = Position(-x, -y)
 
+        fun turnLeft() = Position(y, -x)
         fun turnRight() = Position(-y, x)
     }
 
