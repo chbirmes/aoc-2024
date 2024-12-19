@@ -1,10 +1,10 @@
 private fun combinations(pattern: String, towels: Set<String>, cache: MutableMap<String, Long> = mutableMapOf()): Long =
     if (pattern.isEmpty()) 1L
-    else cache[pattern]
-        ?: towels.sumOf { towel ->
+    else cache.getOrPut(pattern) {
+        towels.sumOf { towel ->
             if (pattern.startsWith(towel)) combinations(pattern.substring(towel.length), towels, cache) else 0L
         }
-            .also { cache[pattern] = it }
+    }
 
 private fun part1(lines: List<String>): Int {
     val towels = lines.first().split(", ").toSet()
