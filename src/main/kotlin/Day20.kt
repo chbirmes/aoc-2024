@@ -5,7 +5,7 @@ import kotlin.math.min
 
 private typealias Cheat = Pair<D2.Position, D2.Position>
 
-private fun pathThrough(grid: D2.Grid): LinkedHashSet<D2.Position> {
+private fun pathThrough(grid: D2.Grid): List<D2.Position> {
     val start = grid.find('S')!!
     val end = grid.find('E')!!
     val set = linkedSetOf(start)
@@ -18,7 +18,7 @@ private fun pathThrough(grid: D2.Grid): LinkedHashSet<D2.Position> {
         set.add(next)
         current = next
     }
-    return set
+    return set.toList()
 }
 
 private fun manhattanDistance(p1: D2.Position, p2: D2.Position) =
@@ -29,13 +29,13 @@ private fun IntRange.constrainTo(other: IntRange) = max(first, other.first)..min
 private fun filterEndIndexCandidates(
     interval: IntRange,
     start: D2.Position,
-    path: LinkedHashSet<D2.Position>,
+    path: List<D2.Position>,
     maxDistance: Int,
     result: MutableList<IntRange> = mutableListOf()
 ): MutableList<IntRange> {
     if (interval.isEmpty()) return result
     val pivot = (interval.first + interval.last) / 2
-    val buffer = maxDistance - manhattanDistance(start, path.elementAt(pivot))
+    val buffer = maxDistance - manhattanDistance(start, path[pivot])
 
     val (leftMax, rightMin) =
         if (buffer >= 0)
@@ -52,17 +52,17 @@ private fun filterEndIndexCandidates(
     return left
 }
 
-private fun findCheats(path: LinkedHashSet<D2.Position>, minSaving: Int, cheatLength: Int): Map<Cheat, Int> {
+private fun findCheats(path: List<D2.Position>, minSaving: Int, cheatLength: Int): Map<Cheat, Int> {
     val result = mutableMapOf<Cheat, Int>()
     val startIndexCandidates = 0..(path.indices.last - 2 - minSaving)
     startIndexCandidates.forEach { startIndex ->
-        val startCandidate = path.elementAt(startIndex)
+        val startCandidate = path[startIndex]
         val endIndexCandidates = (startIndex + 2 + minSaving)..path.indices.last
         filterEndIndexCandidates(endIndexCandidates, startCandidate, path, cheatLength)
             .asSequence()
             .flatten()
             .forEach { endIndex ->
-                val endCandidate = path.elementAt(endIndex)
+                val endCandidate = path[endIndex]
                 val saving = endIndex - startIndex - manhattanDistance(startCandidate, endCandidate)
                 val cheat = startCandidate to endCandidate
                 saving.takeIf { it >= minSaving }?.let { result[cheat] = it }
