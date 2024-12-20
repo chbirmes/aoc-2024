@@ -2,6 +2,7 @@ import D2.neighborsIn
 import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.time.measureTime
 
 private typealias Cheat = Pair<D2.Position, D2.Position>
 
@@ -46,10 +47,9 @@ private fun filterEndIndexCandidates(
     if (buffer >= 0) {
         result.add(((leftMax + 1)..<rightMin).constrainTo(interval))
     }
-    val left = filterEndIndexCandidates(interval.first..leftMax, start, path, maxDistance, result)
-    val right = filterEndIndexCandidates(rightMin..interval.last, start, path, maxDistance)
-    left.addAll(right)
-    return left
+    filterEndIndexCandidates(interval.first..leftMax, start, path, maxDistance, result)
+    filterEndIndexCandidates(rightMin..interval.last, start, path, maxDistance, result)
+    return result
 }
 
 private fun findCheats(path: List<D2.Position>, minSaving: Int, cheatLength: Int): Map<Cheat, Int> {
@@ -140,5 +140,5 @@ fun main() {
 
     val realInput = inputOfDay(20)
     println(part1(realInput, 100).values.sum())
-    println(part2(realInput, 100).values.sum())
+    measureTime { println(part2(realInput, 100).values.sum()) }.also { println(it) }
 }
