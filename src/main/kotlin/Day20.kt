@@ -24,6 +24,8 @@ private fun pathThrough(grid: D2.Grid): LinkedHashSet<D2.Position> {
 private fun manhattanDistance(p1: D2.Position, p2: D2.Position) =
     (p1 - p2).let { it.x.absoluteValue + it.y.absoluteValue }
 
+private fun IntRange.constrainTo(other: IntRange) = max(first, other.first)..min(last, other.last)
+
 private fun filterEndIndexCandidates(
     interval: IntRange,
     start: D2.Position,
@@ -33,26 +35,22 @@ private fun filterEndIndexCandidates(
 ): MutableList<IntRange> {
     if (interval.isEmpty()) return result
     val pivot = (interval.first + interval.last) / 2
-    val pivotPosition = path.elementAt(pivot)
-    val distance = manhattanDistance(start, pivotPosition)
-    val buffer = maxDistance - distance
+    val buffer = maxDistance - manhattanDistance(start, path.elementAt(pivot))
 
-    val (nextLeft, nextRight) =
+    val (leftMax, rightMin) =
         if (buffer >= 0)
-            interval.first..<(pivot - buffer) to (pivot + buffer + 1)..interval.last
+            (pivot - buffer - 1) to (pivot + buffer + 1)
         else
-            interval.first..(pivot + buffer) to (pivot - buffer)..interval.last
+            (pivot + buffer) to (pivot - buffer)
 
     if (buffer >= 0) {
-        result.add(((nextLeft.last + 1)..<nextRight.first).constrainTo(interval))
+        result.add(((leftMax + 1)..<rightMin).constrainTo(interval))
     }
-    val left = filterEndIndexCandidates(nextLeft, start, path, maxDistance, result)
-    val right = filterEndIndexCandidates(nextRight, start, path, maxDistance)
+    val left = filterEndIndexCandidates(interval.first..leftMax, start, path, maxDistance, result)
+    val right = filterEndIndexCandidates(rightMin..interval.last, start, path, maxDistance)
     left.addAll(right)
     return left
 }
-
-private fun IntRange.constrainTo(other: IntRange) = max(first, other.first)..min(last, other.last)
 
 private fun findCheats(path: LinkedHashSet<D2.Position>, minSaving: Int, cheatLength: Int): Map<Cheat, Int> {
     val result = mutableMapOf<Cheat, Int>()
@@ -60,20 +58,15 @@ private fun findCheats(path: LinkedHashSet<D2.Position>, minSaving: Int, cheatLe
     startIndexCandidates.forEach { startIndex ->
         val startCandidate = path.elementAt(startIndex)
         val endIndexCandidates = (startIndex + 2 + minSaving)..path.indices.last
-        val filteredEndIndexCandidates = filterEndIndexCandidates(endIndexCandidates, startCandidate, path, cheatLength)
+        filterEndIndexCandidates(endIndexCandidates, startCandidate, path, cheatLength)
             .asSequence()
             .flatten()
-        filteredEndIndexCandidates.forEach { endIndex ->
-            val endCandidate = path.elementAt(endIndex)
-            val distance = manhattanDistance(startCandidate, endCandidate)
-            if (distance <= cheatLength) {
+            .forEach { endIndex ->
+                val endCandidate = path.elementAt(endIndex)
                 val saving = endIndex - startIndex - manhattanDistance(startCandidate, endCandidate)
                 val cheat = startCandidate to endCandidate
-                if (saving >= minSaving && (!result.containsKey(cheat) || result[cheat]!! < saving)) {
-                    result[cheat] = saving
-                }
+                saving.takeIf { it >= minSaving }?.let { result[cheat] = it }
             }
-        }
     }
     return result
 }
