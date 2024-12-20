@@ -1,8 +1,5 @@
 import D2.neighborsIn
 import kotlin.math.absoluteValue
-import kotlin.math.max
-import kotlin.math.min
-import kotlin.time.measureTime
 
 private typealias Cheat = Pair<D2.Position, D2.Position>
 
@@ -25,53 +22,26 @@ private fun pathThrough(grid: D2.Grid): List<D2.Position> {
 private fun manhattanDistance(p1: D2.Position, p2: D2.Position) =
     (p1 - p2).let { it.x.absoluteValue + it.y.absoluteValue }
 
-private fun IntRange.constrainTo(other: IntRange) = max(first, other.first)..min(last, other.last)
-
-private fun filterEndIndexCandidates(
-    interval: IntRange,
-    start: D2.Position,
-    path: List<D2.Position>,
-    maxDistance: Int,
-    result: MutableList<IntRange> = mutableListOf()
-): MutableList<IntRange> {
-    if (interval.isEmpty()) return result
-    val pivot = (interval.first + interval.last) / 2
-    val buffer = maxDistance - manhattanDistance(start, path[pivot])
-
-    val (leftMax, rightMin) =
-        if (buffer >= 0)
-            (pivot - buffer - 1) to (pivot + buffer + 1)
-        else
-            (pivot + buffer) to (pivot - buffer)
-
-    if (buffer >= 0) {
-        result.add(((leftMax + 1)..<rightMin).constrainTo(interval))
-    }
-    filterEndIndexCandidates(interval.first..leftMax, start, path, maxDistance, result)
-    filterEndIndexCandidates(rightMin..interval.last, start, path, maxDistance, result)
-    return result
-}
-
 private fun findCheats(path: List<D2.Position>, minSaving: Int, cheatLength: Int): Map<Cheat, Int> {
     val result = mutableMapOf<Cheat, Int>()
     val startIndexCandidates = 0..(path.indices.last - 2 - minSaving)
     startIndexCandidates.forEach { startIndex ->
         val startCandidate = path[startIndex]
         val endIndexCandidates = (startIndex + 2 + minSaving)..path.indices.last
-        filterEndIndexCandidates(endIndexCandidates, startCandidate, path, cheatLength)
-            .asSequence()
-            .flatten()
-            .forEach { endIndex ->
-                val endCandidate = path[endIndex]
-                val saving = endIndex - startIndex - manhattanDistance(startCandidate, endCandidate)
+        endIndexCandidates.forEach { endIndex ->
+            val endCandidate = path[endIndex]
+            val distance = manhattanDistance(startCandidate, endCandidate)
+            if (distance <= cheatLength) {
+                val saving = endIndex - startIndex - distance
                 val cheat = startCandidate to endCandidate
                 saving.takeIf { it >= minSaving }?.let { result[cheat] = it }
             }
+        }
     }
     return result
 }
 
-private fun solve(lines: List<String>, cheatLength: Int, minSaving: Int = 2): Map<Int, Int> {
+private fun solve(lines: List<String>, cheatLength: Int, minSaving: Int): Map<Int, Int> {
     val grid = D2.Grid(lines)
     val path = pathThrough(grid)
     val cheats = findCheats(path, minSaving, cheatLength)
@@ -140,5 +110,5 @@ fun main() {
 
     val realInput = inputOfDay(20)
     println(part1(realInput, 100).values.sum())
-    measureTime { println(part2(realInput, 100).values.sum()) }.also { println(it) }
+    println(part2(realInput, 100).values.sum())
 }
